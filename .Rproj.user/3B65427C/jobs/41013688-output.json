@@ -1,7 +1,0 @@
-[1,"Installing 'data.table' ...\r\n"]
-[1,"\r\n"]
-[1,"Retrieving 'https://cloud.r-project.org/bin/windows/contrib/4.0/data.table_1.13.0.zip' ...\r\n"]
-[1,"\tOK [downloaded 2.5 Mb in 0.4 secs]\r\n"]
-[1,"Installing data.table [1.13.0] ...\r\n"]
-[1,"\tOK [installed binary]\r\n"]
-[2,"\r\n\r\n<U+2714> Package 'data.table' successfully installed.\r\n"]
