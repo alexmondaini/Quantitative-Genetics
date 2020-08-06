@@ -1,0 +1,12 @@
+states =row.names(USArrests)
+USArrests
+pr.out =prcomp (USArrests , scale =TRUE)
+names(pr.out)
+pr.out$rotation
+biplot(pr.out)
+
+pr.out$rotation=-pr.out$rotation
+pr.out$x=-pr.out$x
+biplot(pr.out,scale=0)
+
+test <- prcomp(pca_df)

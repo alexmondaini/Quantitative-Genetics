@@ -1,0 +1,110 @@
+require(adegenet)
+
+load(file = 'Rda/Fst-Nei/fst_hierfstat.rda')
+fst_hierfstat[1:7,1:7]
+
+GID <- fst_hierfstat[,1]
+
+fst_ade <- fst_hierfstat[,-1:-3]
+fst_ade[1:7,1:7]
+
+row.names(fst_ade) <- GID
+fst_hierfstat$pop <- as.factor(fst_hierfstat$pop)
+
+##################
+memory.limit(25000)
+
+obj <- df2genind(fst_ade, ploidy=2, sep="")
+
+obj$other$groups <- fst_hierfstat$pop
+pop(obj) <- obj$other$groups
+class(pop(obj))
+levels(pop(obj))
+obj$pop <- factor(pop(obj),levels(pop(obj))[c(3,4,5,6,1,2)])
+
+save(obj,file = 'Rda/adegenet/obj.rda')
+load(file = 'Rda/adegenet/obj.rda')
+
+#### k means
+
+grp <- find.clusters(obj,max.n.clust = 40,n.pca = 2184)
+
+save(grp,file = "Rda/adegenet/grp.rda")
+load(file = "Rda/adegenet/grp.rda")
+
+#### 6 groups chosen , now lets run DAPC on those groups
+
+dapc1 <- dapc(obj,grp$grp,n.pca=300,  n.da = 2184)  # this is with population as k means
+temp  <- optim.a.score(dapc1)
+
+dapc2 <- dapc(obj,pop(obj),n.pca=300, n.da = 2184)
+temp2 <- optim.a.score(dapc2)
+
+
+save(dapc1,file = "Rda/adegenet/dapc1.rda")
+save(dapc2,file = "Rda/adegenet/dapc2.rda")
+
+load('Rda/adegenet/dapc1.rda')
+load('Rda/adegenet/dapc2.rda')
+
+membership_prob <- dapc2$posterior
+head(membership_prob)
+write.csv(membership_prob,file = 'excel_text_files/gwas/membership_prob.csv')
+
+myCol <- c("green","purple","orange","red","darkblue","lightblue")
+
+par(mfrow=c(1,2))
+
+scatter(dapc1,col=myCol,grp = pop(obj),scree.da = F,cstar = 0,
+        cellipse = F,legend = T,clabel = 0,posi.leg = "topleft")
+
+scatter(dapc2,col=myCol,grp = pop(obj),scree.da = F,cstar = 0,
+        cellipse = F,legend = T,clabel = 0,posi.leg = "topleft")
+
+
+
+##### contribution of SNP's to the PCA's 
+
+par(mfrow=c(1,1))
+set.seed(5)
+contrib <- loadingplot(dapc2$var.contr,lab.jitter = 2,thres=0.0012)
+
+
+######## lets get some loci allele frequency for the ones we got under 
+
+freqS2A <-  tab(genind2genpop(obj[loc=c("S2A_43841668")]),freq=T)
+
+freqS2B <-  tab(genind2genpop(obj[loc=c("S2B_48144032")]),freq=T)
+
+freqS6B <-  tab(genind2genpop(obj[loc=c("S6B_67674639")]),freq=T)
+
+par(mfrow=c(1,3), mar=c(5.1,4.1,4.1,.1),las=3)
+matplot(freqS2A, pch=c("1","2"), type="b",
+        xlab="",ylab="allele frequency", xaxt="n",
+        cex=1.5, main="SNP # S2A_43841668")
+axis(side=1, at=1:6, lab=c('ES1-7','ES8-13','ES14-25','ES26-38','SA1-12','SA14-25'))
+matplot(freqS2B, pch=c("1","2"), type="b", xlab="",
+        ylab="allele frequency", xaxt="n", cex=1.5,
+        main="SNP # S2B_48144032")
+axis(side=1, at=1:6, lab=c('ES1-7','ES8-13','ES14-25','ES26-38','SA1-12','SA14-25'))
+matplot(freqS6B, pch=c("1","2"), type="b", xlab="",
+        ylab="allele frequency", xaxt="n", cex=1.5,
+        main="SNP # S6B_67674639")
+axis(side=1, at=1:6, lab=c('ES1-7','ES8-13','ES14-25','ES26-38','SA1-12','SA14-25'))
+
+
+##################### membership probabilities
+
+
+compoplot(dapc2,
+          ncol=1,col=funky(6))
+
+temp <- which(apply(dapc2$posterior,1, function(e) all(e<0.9)))
+temp
+
+ncol(dapc2$posterior)
+
+compoplot(dapc2,subset = temp,
+          ncol=1,col=funky(6))
+
+

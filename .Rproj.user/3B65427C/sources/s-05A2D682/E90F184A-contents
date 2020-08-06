@@ -1,0 +1,100 @@
+
+# excel files combined
+excel_file <- read.table(file.choose(),header = T,sep = ',',stringsAsFactors = F)
+str(excel_file)
+# duplicated rows in excel file ? we always find errors when things are done by hand kkk
+
+excel_file[duplicated(excel_file)|duplicated(excel_file,fromLast = T),]
+excel_file <- excel_file[c(-1249,-1657),] 
+
+# pasting to compare snp data
+excel_file$GID <- paste0('GID',excel_file$GID)
+excel_file[1:5,1:5]
+
+
+# filtered data after the numeric conversion
+load("~/R/Rda/numeric_hapmap/gbs_data2.rda")
+gbs <- gbs_data2
+rm(gbs_data2)
+
+gbs[1:9,1:9]
+
+# extracting a vector from snpdata for comparison
+GBS_GDI_column<-names(gbs)
+
+# is there something on the snpdata that it is not in the excel file ? seems like not
+
+gbs_data1 <- gbs[ , which(GBS_GDI_column%in%excel_file$GID)]
+
+gbs_data2<-data.frame(gbs[,1:4],gbs_data1)
+
+#  GIDs that are present in the SNP data
+
+excel_file1<- excel_file[excel_file$GID %in% GBS_GDI_column,]
+
+# missing values excel file counted by trial and ordered alphanumerically
+
+excel_missing <- excel_file[!excel_file$GID %in% GBS_GDI_column,]
+
+# counting the frequency of missing values that were not genotyped per trial 
+require(dplyr)
+freq_missing <- count(excel_missing,trial)
+freq_missing %>% print(n=Inf)
+
+require(gtools)
+freq_missing <- freq_missing[mixedorder(freq_missing$trial),]
+
+# this is the GID that is a local check, we don't want this guy , getting rid of it
+
+which(excel_file$GID=='GID304660')
+local_checks <- subset(excel_file,excel_file$GID=='GID304660')
+local_checks
+length(local_checks$GID)
+
+
+#63 local checks in total across several trials
+# let's clean the excel file that has no missing data of the local checks as well
+
+excel_file1 <- subset(excel_file1,excel_file1$GID!='GID304660')
+head(excel_file1)
+rownames(excel_file1) <- 1:nrow(excel_file1)
+
+# let's clean the snp data from the local check too, which is just one
+gbs_data1<-gbs_data1[ ,!colnames(gbs_data1)=='GID304660']
+
+#note we still have repeated GIDs over different trials and years
+
+length(unique(excel_file1$GID))
+
+# unique returns the values themselves so you can use length
+
+sum(duplicated(excel_file1$GID,na.rm=T))
+
+# to have the length of logical vectors you need to use sum
+
+2184+514 # 2184 unique and 514 GID's repeated
+
+dup_dataframe <- excel_file1[duplicated(excel_file1$GID),]
+require(gtools)
+dup_dataframe <- dup_dataframe[mixedorder(dup_dataframe$GID),]
+
+str(dup_dataframe$trial)
+SA <- dup_dataframe[grep('SA.*',dup_dataframe$trial),]
+ES <- dup_dataframe[grep('ES.*',dup_dataframe$trial),]
+
+
+SA1 <- excel_file1[grep('SA.*',excel_file1$trial),]
+ES1 <- excel_file1[grep('ES.*',excel_file1$trial),]
+
+intersect(SA$GID,ES$GID)
+intersect(SA1$GID,ES1$GID)
+
+
+head(dup_dataframe)
+
+
+library(data.table)
+
+
+
+

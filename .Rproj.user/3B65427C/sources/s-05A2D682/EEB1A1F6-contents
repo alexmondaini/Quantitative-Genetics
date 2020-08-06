@@ -1,0 +1,43 @@
+require(here)
+
+load(here('PCA','df.rda'))
+load(here('PCA','trial_df.rda'))
+
+# Glimpse of the data
+df[1:7,1:7]
+head(trial_df)
+
+# We need to transform df columns into rows
+fst_data <- data.frame(Genotype=names(df)[-1:-4],t(df[-1:-4]),row.names = NULL)
+dim(fst_data)
+# rename the columns with the locus information
+names(fst_data)[-1] <- paste0(df$chrom,'-',df$pos)
+
+# bind with the trial_df group column
+fst_data <- cbind(group=trial_df$group,trial=trial_df$trial,fst_data)
+
+# Now we need to transform into hierfstat format
+transform <- fst_data[,-1:-3]
+transform[1:7,1:7]
+# coerce to character and duplicate string
+transform <- sapply(transform, strrep,2)
+transform[1:7,1:7]
+# replace 11 for 12
+transform <- replace(transform,transform=='11','12')
+transform[1:7,1:7]
+# replace 00 for 11
+transform <- replace(transform,transform=='00','11')
+transform[1:7,1:7]
+# coerce to numeric
+mode(transform) <- 'numeric'
+str(transform)
+
+# let's bind back the columns
+fst_hierfstat <- cbind(fst_data[,1:3],transform)
+str(fst_hierfstat)
+fst_hierfstat[1:7,1:7]
+
+# And save the object
+save(fst_hierfstat,file = here('FST','fst_hierfstat.rda'))
+
+

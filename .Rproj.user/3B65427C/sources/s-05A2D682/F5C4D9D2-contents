@@ -1,0 +1,85 @@
+require(here)
+
+df_gbs = data.frame(read.delim(here('hapmap','Beagle.hmp'),header=T,stringsAsFactors = F))
+class(df_gbs)
+str(df_gbs)
+
+# first eleven rows are not needed for the numerical conversion, the first 5 columns we will need later.
+df_col = df_gbs[,1:5]
+df_num = df_gbs[,-1:-11]
+
+df_col[1:5,1:5]
+df_num[1:5,1:5]
+
+# Numeric encoding to transform  hapmap format into a SNP allele count matrix
+# Numeric encoding to 1, for all heterozygotes and NA for missing data 
+
+# for missing value
+df_num[df_num=='N'] = NA
+df_num[df_num=='.'] = NA
+df_num[df_num=='-'] = NA
+
+# for tri-allelic sites
+df_num[df_num=='B'] = NA
+df_num[df_num=='D'] = NA
+df_num[df_num=='H'] = NA
+df_num[df_num=='V'] = NA
+
+# for heterozygous sites
+df_num[df_num=='R'] = 1
+df_num[df_num=='Y'] = 1
+df_num[df_num=='S'] = 1
+df_num[df_num=='W'] = 1
+df_num[df_num=='K'] = 1
+df_num[df_num=='M'] = 1
+
+str(df_num)
+# copying object in case something goes wrong
+vlgwas2 <- df_num
+
+
+# converting to numerical code and imputing NA with mean (imputation, required for PCA) 
+for ( i in 1:nrow(df_num))
+  {
+  reference_allele <- substr(df_col[i,2],1,1)    # substr (data,start,stop)
+  alternative_allele <- substr(df_col[i,2],3,3)
+  # transform everything into characters
+  x <- as.character(df_num[i,])
+  # input the reference allele and the alternative allele 
+  x[x==reference_allele] <- 2
+  x[x==alternative_allele] <- 0
+  # inputing numbers in x
+  x[x=="1"] <- 1
+  x[x=="0"] <- 0
+  x[x=="-"] <- NA
+  x[x=="."] <- NA
+  x[x=="NA"] <- NA
+  # making x numeric
+  x <- as.numeric(x)
+  # inputing mean to the missing values
+  meanv <- round(mean(x, na.rm = TRUE),0)
+  x[is.na(x)] <- meanv
+  # fill in the numbers of x by row in the dataframe vlgwas
+  vlgwas2[i,] <- as.numeric (x)
+  }
+
+# calculation of minor allele frequency, filter by minor allele frequency 
+vlgwas2[1:6,1:6]
+
+MAF <- apply(vlgwas2, 1, function(x) 1- mean(as.numeric(x))/2)
+table(MAF > 0.05)
+
+#combining the 2 dataframes
+
+vlgwas3 <- vlgwas2[MAF >0.05,]
+logical_subset_gbs <- df_num[MAF >0.05,]
+
+# associating 
+
+GBS_data2 <- data.frame(logical_subset_gbs[,1:4], vlgwas3)
+
+row.names(GBS_data2) <- 1:nrow(GBS_data2)
+
+save(GBS_data2, file = "imputed.rda")
+
+######################################################################################
