@@ -1,6 +1,6 @@
 # Selection Signatures in CIMMYT’s International Elite Spring and Semi-Arid Wheat Yield Trials
 
-There is a chronological order for this work, which must be followed as new R objects are saved and used for downstream pipeline analysis.
+There is a chronological order for this work, which must be followed as new R objects are saved and used for downstream pipeline analysis. Please follow this order:
 
 1. [Hapmap](hapmap)  Transforms textual hapmap fomrat into numeric
 2. [Trial Data Cleaning](trial_data_cleaning) Data preparation from field trials
