@@ -24,7 +24,7 @@ trial_df$group <- gsub("ES[8-9]$|ES1[0-3]$","ES8-13",trial_df$group)
 trial_df$group <- gsub("ES1[4-9]$|ES2[0-5]$","ES14-25",trial_df$group)
 trial_df$group <- gsub("ES2[6-9]$|ES3[0-8]$","ES26-38",trial_df$group)
 trial_df$group <- gsub("SA[1-9]$|SA1[0-2]$","SA1-12",trial_df$group)
-trial_df$group <- gsub("SA1[3-9]$|SA2[0-5]$","SA14-25",trial_df$group)
+trial_df$group <- gsub("SA1[3-9]$|SA2[0-5]$","SA13-25",trial_df$group)
 # checking if works
 trial_df$group
 head(trial_df)
