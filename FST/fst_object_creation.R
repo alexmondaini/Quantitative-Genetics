@@ -12,17 +12,17 @@ df[1:7,1:7]
 head(trial_df)
 
 # We need to transform df columns into rows
-fst_data <- data.frame(Genotype=names(df)[-1:-4],t(df[-1:-4]),row.names = NULL)
-dim(fst_data)
+snp <- data.frame(Genotype=names(df)[-1:-4],t(df[-1:-4]),row.names = NULL)
+dim(snp)
 
 # rename the columns with the locus information
-names(fst_data)[-1] <- paste0(df$chrom,'-',df$pos)
+names(snp)[-1] <- paste0(df$chrom,'-',df$pos)
 
 # bind with the trial_df group column
-fst_data <- cbind(group=trial_df$group,trial=trial_df$trial,fst_data)
+snp <- cbind(group=trial_df$group,trial=trial_df$trial,snp)
 
 # Now we need to transform into hierfstat format
-transform <- fst_data[,-1:-3]
+transform <- snp[,-1:-3]
 transform[1:7,1:7]
 # coerce to character and duplicate string
 transform <- sapply(transform, strrep,2)
@@ -38,7 +38,7 @@ mode(transform) <- 'numeric'
 str(transform)
 
 # let's bind back the columns
-fst_hierfstat <- cbind(fst_data[,1:3],transform)
+fst_hierfstat <- cbind(snp[,1:3],transform)
 str(fst_hierfstat)
 fst_hierfstat[1:7,1:7]
 
@@ -78,5 +78,5 @@ fst_hierfstat[1:7,1:7]
 
 # And save the object
 save(fst_hierfstat,file = here('FST','fst_hierfstat.rda'))
-
+save(snp,file = here('adegenet_dapc','snp.rda'))
 
