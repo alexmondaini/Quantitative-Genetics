@@ -47,6 +47,8 @@ f = function(x){
   return(x)
 }
 
+# Apply 2 for reference and 1 for alternative allele
+
 df_num <- sapply(df_num,f,simplify = TRUE)
 
 # transform the the characters into numbers
