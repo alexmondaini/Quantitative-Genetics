@@ -12,3 +12,5 @@ There is a chronological order for this work, which must be followed as new R ob
     * [kernel_3](allele_frequencies_populations/kernel_3.R)
     * [plot_signatures_selection_4](allele_frequencies_populations/plot_signatures_selection_4.R)
 6. [adegenet_dapc](adegenet_dapc) Population Structure Analysis
+
+**P.S**: To know more about this study please see my recent publication: https://doi.org/10.1002/tpg2.20165
